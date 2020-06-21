@@ -1,4 +1,5 @@
-/* A função irá retornar o código da linguagem que o usuário está utilizando atualmente, tanto no powerbi service quanto no desktop */
+/* A função irá retornar o código da linguagem que o usuário está utilizando atualmente, tanto no powerbi service quanto no desktop.
+Ao digitar a função mostrará como se estive errada ou não existisse, mas você pode ignorar isso. Ela funcionará perfeitamente*/
 Linguagem = USERCULTURE()
 
 /* Você não precisa passar nenhum argumento, e ela pode ser usada dentro de outras medidas.
