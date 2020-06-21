@@ -1,0 +1,21 @@
+/* A função irá retornar o código da linguagem que o usuário está utilizando atualmente, tanto no powerbi service quanto no desktop */
+Linguagem = USERCULTURE()
+
+/* Você não precisa passar nenhum argumento, e ela pode ser usada dentro de outras medidas.
+Como o exemplo abaixo que alteramos o título da pagina da acordo como o idioma do usuário.*/
+Title = 
+SWITCH(
+    [Linguagem],
+    "pt-BR", "Relatório de Vendas",
+    "en-US", "Sales Report",
+    "es-ES", "Reporte de Ventas"
+)
+
+/* Assim criamos várias medidas reutilizando a mesma. Mas também podemos usar diretamento dentro da medida*/
+Title = 
+SWITCH(
+    USERCULTURE(),
+    "pt-BR", "Relatório de Vendas",
+    "en-US", "Sales Report",
+    "es-ES", "Reporte de Ventas"
+)
