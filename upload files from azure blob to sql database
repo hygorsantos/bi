@@ -1,0 +1,53 @@
+/* A primeira coisa que você precisa fazer caso não tenha feito antes é criar uma chave mestra conforme o código abaixo.*/
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = '**********';
+
+/* Depois vamos criar a credencial, ou seja os dados de acesso do blob. Essa credencial é como um login e senha.
+Por padrão use o mesmo IDENTITY que está abaixo e SECRET você deve utilizar a Access Key do blob.*/
+CREATE DATABASE SCOPED CREDENTIAL LoginBlob
+WITH
+    IDENTITY = 'SHARED ACCESS SIGNATURE',
+    SECRET = 'sDPge8GI6m65tkPtSub/uyctSx9pLZs5dAshUnqyJ4smWEPY4QJlrMsligBH5hIoZ9i8Lvx1IPEhJPvoJI+l+w=='
+;
+
+/*Já que agora temos a credencial, vamos vamos usa-lá para criar a conexão com o blob*/
+CREATE EXTERNAL DATA SOURCE ConexaoTeste
+WITH (
+    TYPE = BLOB_STORAGE,
+    LOCATION='https://linkdoblob/container',
+    CREDENTIAL = LoginBlob
+);
+
+/* Bom, então já que temos uma conexão com os dados vamos criar uma tabela para armazena-los.*/
+CREATE TABLE [dbo].[Iris] 
+(
+     sepal_length     nvarchar(50) null  
+    ,sepal_width    nvarchar(50) null
+    ,petal_length   nvarchar(50) null
+    ,petal_width    nvarchar(50) null
+    ,species         nvarchar(50) null   
+)
+
+ /* Agora vamos inserir nossos dados na tabela que criamos.*/
+ BULK INSERT [dbo].[Iris]
+ FROM 'IRIS2.csv' --Nome ou caminho do arquivo que você quer trazer os dados
+ WITH
+    (
+		DATA_SOURCE = 'ConexaoTeste'  
+	   ,FORMAT = 'CSV'
+	   ,FIELDTERMINATOR = ';'
+	   ,ROWTERMINATOR = '\r'
+	   ,FIRSTROW = 2
+)
+
+/* 
+------------------------------------- Recomedações -----------------------------------
+1. Depois de criar a login, apaga-los do script já que ficam armazenados no banco.
+2. Criar uma conexão para cada container e passar a pasta/aquivo apenas no argumento
+FROM do comando BULK INSERT.
+3. Executar o comando TRUNCATE para limpar a tabela antes de inserir os dados novos.
+
+------------------------------------- Usabilidade -----------------------------------
+1. Carregar tabelas stage em processos de atualização/criação de data warehouse.
+2. Fácil manutenção e diversificação das configurações.
+3. Melhor desempenho, sem a necessidade de utilização de plataformas de terceiros.
+*/
